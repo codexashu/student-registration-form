@@ -1,4 +1,4 @@
-name: Student Registration CI
+name: Student Registration CI & Deployment
 
 on:
   push:
@@ -6,6 +6,15 @@ on:
   pull_request:
     branches: [ "main", "master" ]
   workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
   validate-webpage:
@@ -47,3 +56,28 @@ jobs:
         run: |
           chmod +x run_tests.sh
           ./run_tests.sh
+
+  deploy-github-pages:
+    name: Deploy to GitHub Pages
+    needs: validate-webpage
+    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && github.event_name != 'pull_request'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

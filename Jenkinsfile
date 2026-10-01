@@ -14,6 +14,7 @@ pipeline {
 
     environment {
         PROJECT_NAME = 'student-registration-form'
+        DEPLOY_PORT = '8080'
     }
 
     stages {
@@ -81,12 +82,35 @@ pipeline {
                 '''
             }
         }
+
+        stage('Deploy Application') {
+            steps {
+                echo '=========================================='
+                echo 'Stage: Packaging & Deploying Application'
+                echo '=========================================='
+                sh '''
+                    echo "[+] Packaging production static web distribution..."
+                    mkdir -p dist
+                    cp index.html styles.css script.js dist/
+                    echo "[SUCCESS] Distribution bundle created in $(pwd)/dist"
+
+                    # If Docker is available, build containerized image
+                    if command -v docker &>/dev/null; then
+                        echo "[+] Building Docker image: student-registration-portal:latest..."
+                        docker build -t student-registration-portal:latest .
+                        echo "[SUCCESS] Container image built successfully."
+                    else
+                        echo "[INFO] Standalone static artifacts ready for web server deployment."
+                    fi
+                '''
+            }
+        }
     }
 
     post {
         success {
             echo '==================================================='
-            echo ' SUCCESS: HTML file verified and all tests passed! '
+            echo ' SUCCESS: Tests passed and Application Deployed!   '
             echo '==================================================='
         }
         failure {

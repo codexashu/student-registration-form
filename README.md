@@ -1,6 +1,6 @@
-# 🎓 Student Registration Form Portal & CI/CD Automated Testing
+# 🎓 Student Registration Form Portal & CI/CD Automated Testing + Deployment
 
-A modern, responsive Student Registration Webpage configured with dual continuous integration pipelines (**GitHub Actions** and **Jenkins**) to automatically test and verify whether the HTML file exists and contains all required form elements whenever code is pushed.
+A modern, responsive Student Registration Webpage configured with dual continuous integration pipelines (**GitHub Actions** and **Jenkins**) to automatically test and verify whether the HTML file exists and contains all required form elements whenever code is pushed, and automatically **deploy** the application to **GitHub Pages** and **Docker containers**.
 
 ---
 
@@ -8,12 +8,14 @@ A modern, responsive Student Registration Webpage configured with dual continuou
 1. [Project Overview](#-project-overview)
 2. [Project File Structure](#-project-file-structure)
 3. [Features & Required Form Elements](#-features--required-form-elements)
-4. [Running the Webpage Locally](#-running-the-webpage-locally)
+4. [Live Deployment Options](#-live-deployment-options)
+   - [GitHub Pages Deployment (Automatic via Actions)](#1-github-pages-deployment-automatic-via-actions)
+   - [Docker Container Deployment](#2-docker-container-deployment)
+   - [Local Development Server](#3-local-development-server)
 5. [Automated Test Suite](#-automated-test-suite)
 6. [CI/CD Pipeline 1: GitHub Actions](#-cicd-pipeline-1-github-actions)
 7. [CI/CD Pipeline 2: Jenkins Pipeline](#-cicd-pipeline-2-jenkins-pipeline)
 8. [Configuring Jenkins GitHub Webhook (Push Trigger)](#-configuring-jenkins-github-webhook-push-trigger)
-9. [Pushing to Your GitHub Account](#-pushing-to-your-github-account)
 
 ---
 
@@ -26,8 +28,8 @@ This project satisfies the following DevOps and Web Development requirements:
   2. Standard HTML5 DOCTYPE and title tags.
   3. `<form>` element with proper attributes.
   4. Required input fields: Full Name, Email (`type="email"`), Phone (`type="tel"`), Date of Birth (`type="date"`), Gender selection, Academic Course selection, Residential Address, and Submit button.
-- **GitHub Actions Workflow:** Automatically triggers on every `push` and `pull_request` to `main` and `master`.
-- **Jenkins Pipeline:** Standard declarative `Jenkinsfile` that checks out the repository, verifies file existence, and executes element test suites.
+- **GitHub Actions Workflow:** Automatically triggers on every `push` and `pull_request` to `main` and `master`, tests the code, and automatically deploys to **GitHub Pages**.
+- **Jenkins Pipeline:** Standard declarative `Jenkinsfile` that checks out the repository, verifies file existence, executes element test suites, and bundles the application for deployment.
 
 ---
 
@@ -37,19 +39,60 @@ This project satisfies the following DevOps and Web Development requirements:
 student-registration-form/
 ├── .github/
 │   └── workflows/
-│       └── ci.yml               # GitHub Actions CI workflow
+│       └── ci.yml               # GitHub Actions CI & Deployment workflow
 ├── tests/
 │   ├── test_html.py             # Python unittest suite for HTML & element verification
 │   └── test_html.js             # Node.js test runner for HTML structure validation
 ├── index.html                   # Student Registration Webpage
 ├── styles.css                   # Responsive CSS styles
 ├── script.js                    # Interactive form validation script
-├── Jenkinsfile                  # Declarative Jenkins CI Pipeline
+├── Dockerfile                   # Production Nginx container configuration
+├── docker-compose.yml           # Compose specification for multi-platform deployment
+├── Jenkinsfile                  # Declarative Jenkins CI & Deployment Pipeline
 ├── run_tests.sh                 # Unified test execution script
 ├── package.json                 # Project npm metadata & scripts
 ├── .gitignore                   # Git ignore file
 └── README.md                    # Comprehensive documentation
 ```
+
+---
+
+## 🌐 Live Deployment Options
+
+### 1. GitHub Pages Deployment (Automatic via Actions)
+Whenever you push to the `main` branch, the GitHub Actions workflow tests the HTML and then deploys the site to GitHub Pages:
+
+👉 **Live Site URL:** `https://codexashu.github.io/student-registration-form/`
+
+> **Note to enable GitHub Pages in your repo:**
+> 1. Go to your repository on GitHub: **[codexashu/student-registration-form](https://github.com/codexashu/student-registration-form)**
+> 2. Click **Settings** > **Pages** (under "Code and automation" in the left sidebar).
+> 3. Under **Build and deployment > Source**, select **GitHub Actions**.
+> 4. Future pushes will automatically update the live site!
+
+---
+
+### 2. Docker Container Deployment
+You can deploy the registration portal inside an ultra-lightweight, high-performance Nginx Alpine container:
+
+```bash
+# Build and run directly using Docker
+docker build -t student-registration-portal:latest .
+docker run -d -p 8080:80 --name student_reg_app student-registration-portal:latest
+
+# Or using Docker Compose:
+docker compose up -d
+```
+Access the application at: `http://localhost:8080`
+
+---
+
+### 3. Local Development Server
+Open directly in any browser, or use Python:
+```bash
+python3 -m http.server 8000
+```
+Then visit: `http://localhost:8000`
 
 ---
 
@@ -70,24 +113,6 @@ The `index.html` webpage contains semantic HTML5 elements structured into clear 
 | **Declaration Terms** | `<input type="checkbox" id="terms" name="terms" required>` | Student certification checkbox |
 | **Submit Button** | `<button type="submit" id="submitBtn">` | Submits the registration |
 | **Reset Button** | `<button type="reset" id="resetBtn">` | Clears all form fields |
-
----
-
-## 💻 Running the Webpage Locally
-
-You can open `index.html` directly in any web browser, or serve it using Python or Node.js:
-
-### Option A: Using Python built-in HTTP server
-```bash
-# Start local server on port 8000
-python3 -m http.server 8000
-```
-Then visit: `http://localhost:8000`
-
-### Option B: Using Node.js `npx serve`
-```bash
-npx serve .
-```
 
 ---
 
@@ -124,13 +149,17 @@ Located at: `.github/workflows/ci.yml`
 - Every `pull_request` to `main` and `master`
 - Manual trigger via `workflow_dispatch`
 
-### Workflow Steps:
-1. **Checkout Repository:** Fetches the code using `actions/checkout@v4`.
-2. **Setup Runtimes:** Configures Python 3.11 and Node.js 20.
-3. **Verify File Existence:** Executes a bash check to ensure `index.html` exists.
-4. **Python Automated Unit Tests:** Executes `test_html.py` asserting doctype, form presence, and required fields.
-5. **Node.js Automated Test Runner:** Executes `test_html.js` for additional cross-runtime verification.
-6. **Unified Test Runner:** Runs `./run_tests.sh` to confirm 100% pass status.
+### Workflow Jobs:
+1. **validate-webpage:**
+   - Checks out repository (`actions/checkout@v4`).
+   - Verifies `index.html` file existence.
+   - Runs Python `unittest` suite (`test_html.py`).
+   - Runs Node.js DOM test suite (`test_html.js`).
+   - Executes `./run_tests.sh`.
+2. **deploy-github-pages:**
+   - Triggers only when validation succeeds on `main`.
+   - Packages static HTML/CSS/JS artifacts.
+   - Deploys live to **GitHub Pages**.
 
 ---
 
@@ -144,7 +173,8 @@ Located at: `Jenkinsfile`
 3. **Test Required HTML Elements (Python):** Executes the Python `unittest` suite.
 4. **Test Required HTML Elements (Node.js):** Executes the Node.js test script.
 5. **Run Unified Test Runner:** Confirms overall test execution.
-6. **Post Actions:** Emits build status notifications (`SUCCESS` / `FAILURE`).
+6. **Deploy Application:** Generates production `dist/` directory and builds container image if Docker is present.
+7. **Post Actions:** Emits build status notifications (`SUCCESS` / `FAILURE`).
 
 ---
 
@@ -156,58 +186,17 @@ To trigger the Jenkins pipeline automatically whenever you push code to GitHub:
    - Create a new **Pipeline** job (e.g., `student-registration-ci`).
    - Under **Build Triggers**, check **GitHub hook trigger for GITScm polling**.
    - Under **Pipeline**, select **Pipeline script from SCM**.
-   - Select **Git**, paste your GitHub repository URL (e.g., `https://github.com/<your-username>/student-registration-form.git`).
+   - Select **Git**, paste your GitHub repository URL: `https://github.com/codexashu/student-registration-form.git`.
    - Set Branch Specifier to `*/main`.
    - Script Path: `Jenkinsfile`.
    - Save the job.
 
 2. **In GitHub:**
-   - Go to your repository on GitHub.
-   - Click **Settings** > **Webhooks** > **Add webhook**.
+   - Go to: `https://github.com/codexashu/student-registration-form/settings/hooks`
+   - Click **Add webhook**.
    - Payload URL: `http://<YOUR_JENKINS_SERVER_IP_OR_URL>:8080/github-webhook/`
    - Content type: `application/json`.
    - Which events would you like to trigger this webhook? Select **Just the push event**.
    - Click **Add webhook**.
 
 Whenever you run `git push origin main`, GitHub will immediately notify Jenkins to run the pipeline!
-
----
-
-## 📤 Pushing to Your GitHub Account
-
-Follow these steps to create the repository on your GitHub account and push the code:
-
-### Step 1: Create a New Repository on GitHub
-1. Log in to [GitHub](https://github.com).
-2. Click the **+** icon in the top right corner and choose **New repository**.
-3. Name the repository: `student-registration-form`.
-4. Choose **Public** or **Private**.
-5. **Do NOT** initialize with a README, .gitignore, or license (we already have them!).
-6. Click **Create repository**.
-
-### Step 2: Link Remote & Push from Terminal
-Run the following commands in this directory:
-
-```bash
-# Navigate to the project directory
-cd /Users/ashutoshpandey/.gemini/antigravity/scratch/student-registration-form
-
-# Check git status
-git status
-
-# Add your GitHub repository remote (replace <YOUR_GITHUB_USERNAME> with your actual username)
-git remote add origin https://github.com/<YOUR_GITHUB_USERNAME>/student-registration-form.git
-
-# Set the default branch to main
-git branch -M main
-
-# Push the code and branch to GitHub
-git push -u origin main
-```
-
-> **Note on Authentication:**
-> When prompted for your password, use your GitHub **Personal Access Token (PAT)**:
-> - On GitHub: `Settings` > `Developer Settings` > `Personal access tokens` > `Tokens (classic)`
-> - Generate a token with `repo` and `workflow` permissions.
-> - Or push using SSH if you have SSH keys configured:
->   `git remote set-url origin git@github.com:<YOUR_GITHUB_USERNAME>/student-registration-form.git`
