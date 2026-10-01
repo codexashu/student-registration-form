@@ -1,0 +1,49 @@
+name: Student Registration CI
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  validate-webpage:
+    name: Verify HTML File & Form Elements
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python Runtime
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Set up Node.js Runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check HTML File Existence
+        run: |
+          echo "Checking whether index.html exists in root directory..."
+          if [ ! -f index.html ]; then
+            echo "ERROR: index.html not found!"
+            exit 1
+          fi
+          echo "SUCCESS: index.html is present."
+
+      - name: Run Automated HTML Elements Test (Python)
+        run: |
+          python3 -m unittest discover -s tests -p "test_*.py" -v
+
+      - name: Run Automated HTML Elements Test (Node.js)
+        run: |
+          node tests/test_html.js
+
+      - name: Execute Full Test Runner
+        run: |
+          chmod +x run_tests.sh
+          ./run_tests.sh

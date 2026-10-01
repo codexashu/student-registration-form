@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Student Registration Portal - Register for academic courses and degree programs.">
+  <title>Student Registration Form</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="page-wrapper">
+    <header class="form-header">
+      <div class="badge">Academic Year 2026 - 2027</div>
+      <h1 id="pageTitle">Student Registration Form</h1>
+      <p class="subtitle">Please fill out the form below carefully to complete your course enrollment.</p>
+    </header>
+
+    <main class="card">
+      <div id="statusMessage" class="alert-message" role="alert" style="display: none;"></div>
+
+      <form id="studentRegistrationForm" name="studentRegistrationForm" action="#" method="POST" novalidate>
+        
+        <!-- Section 1: Personal Information -->
+        <fieldset class="form-section">
+          <legend class="section-title">
+            <span class="step-num">1</span> Personal Details
+          </legend>
+
+          <div class="form-grid">
+            <div class="form-group col-span-2">
+              <label for="fullName">Full Name <span class="required">*</span></label>
+              <input 
+                type="text" 
+                id="fullName" 
+                name="fullName" 
+                placeholder="e.g. Jane Doe" 
+                required 
+                autocomplete="name"
+              >
+              <small class="error-text" id="fullNameError"></small>
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email Address <span class="required">*</span></label>
+              <input 
+                type="email" 
+                id="email" 
+                name="email" 
+                placeholder="e.g. jane.doe@university.edu" 
+                required 
+                autocomplete="email"
+              >
+              <small class="error-text" id="emailError"></small>
+            </div>
+
+            <div class="form-group">
+              <label for="phone">Phone Number <span class="required">*</span></label>
+              <input 
+                type="tel" 
+                id="phone" 
+                name="phone" 
+                placeholder="e.g. +1 (555) 019-2834" 
+                required 
+                autocomplete="tel"
+              >
+              <small class="error-text" id="phoneError"></small>
+            </div>
+
+            <div class="form-group">
+              <label for="dob">Date of Birth <span class="required">*</span></label>
+              <input 
+                type="date" 
+                id="dob" 
+                name="dob" 
+                required
+              >
+              <small class="error-text" id="dobError"></small>
+            </div>
+
+            <div class="form-group">
+              <label>Gender <span class="required">*</span></label>
+              <div class="radio-group" id="genderGroup">
+                <label class="radio-label">
+                  <input type="radio" name="gender" value="male" required>
+                  <span>Male</span>
+                </label>
+                <label class="radio-label">
+                  <input type="radio" name="gender" value="female">
+                  <span>Female</span>
+                </label>
+                <label class="radio-label">
+                  <input type="radio" name="gender" value="non-binary">
+                  <span>Non-Binary</span>
+                </label>
+                <label class="radio-label">
+                  <input type="radio" name="gender" value="prefer-not-to-say">
+                  <span>Other</span>
+                </label>
+              </div>
+              <small class="error-text" id="genderError"></small>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Section 2: Academic Program Information -->
+        <fieldset class="form-section">
+          <legend class="section-title">
+            <span class="step-num">2</span> Academic Program
+          </legend>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="course">Program / Course <span class="required">*</span></label>
+              <select id="course" name="course" required>
+                <option value="" disabled selected>-- Select Program --</option>
+                <option value="cs">B.S. in Computer Science</option>
+                <option value="ds">B.S. in Data Science & Artificial Intelligence</option>
+                <option value="se">B.S. in Software Engineering</option>
+                <option value="it">B.S. in Information Technology</option>
+                <option value="cyber">B.S. in Cybersecurity</option>
+              </select>
+              <small class="error-text" id="courseError"></small>
+            </div>
+
+            <div class="form-group">
+              <label for="semester">Starting Semester <span class="required">*</span></label>
+              <select id="semester" name="semester" required>
+                <option value="" disabled selected>-- Select Semester --</option>
+                <option value="fall-2026">Fall 2026</option>
+                <option value="spring-2027">Spring 2027</option>
+                <option value="summer-2027">Summer 2027</option>
+              </select>
+              <small class="error-text" id="semesterError"></small>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Section 3: Residential Address -->
+        <fieldset class="form-section">
+          <legend class="section-title">
+            <span class="step-num">3</span> Residential Address
+          </legend>
+
+          <div class="form-grid">
+            <div class="form-group col-span-2">
+              <label for="address">Street Address <span class="required">*</span></label>
+              <textarea 
+                id="address" 
+                name="address" 
+                rows="3" 
+                placeholder="Enter street, apartment or suite number..." 
+                required
+              ></textarea>
+              <small class="error-text" id="addressError"></small>
+            </div>
+
+            <div class="form-group">
+              <label for="city">City <span class="required">*</span></label>
+              <input type="text" id="city" name="city" placeholder="City" required>
+              <small class="error-text" id="cityError"></small>
+            </div>
+
+            <div class="form-group">
+              <label for="zipCode">Postal / Zip Code <span class="required">*</span></label>
+              <input type="text" id="zipCode" name="zipCode" placeholder="Postal Code" required>
+              <small class="error-text" id="zipCodeError"></small>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Section 4: Terms & Declarations -->
+        <fieldset class="form-section terms-section">
+          <div class="checkbox-group">
+            <label class="checkbox-label" for="terms">
+              <input type="checkbox" id="terms" name="terms" required>
+              <span>I certify that all information submitted in this application is true, complete, and accurate. <span class="required">*</span></span>
+            </label>
+            <small class="error-text" id="termsError"></small>
+          </div>
+        </fieldset>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button type="reset" id="resetBtn" class="btn btn-secondary">Clear Form</button>
+          <button type="submit" id="submitBtn" class="btn btn-primary">Submit Registration</button>
+        </div>
+      </form>
+    </main>
+
+    <footer class="form-footer">
+      <p>&copy; 2026 Student Admissions Portal. All rights reserved.</p>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
